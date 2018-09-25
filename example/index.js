@@ -19,13 +19,21 @@ const Message = require('..');
 
 
 var message = new Message({
-  from : 'test@lsong.org',
-  to   : [ 'Liu song <hi@lsong.org>', 'hello@lsong.org' ],
-  cc   : 'cc@lsong.org',
-  subject: 'Hello world',
+  // from : 'test@lsong.org',
+  // to   : [ 'Liu song <hi@lsong.org>', 'hello@lsong.org' ],
+  // cc   : 'cc@lsong.org',
+  // subject: 'Hello world',
 });
+
+message.on('headers', headers => {
+  console.log(headers);
+});
+
+message.on('body', body => {
+  console.log(body);
+});
+
 //
 fs.createReadStream('./docs/smtp-qq.txt').pipe(message);
 // const message = Message.parse(fs.readFileSync('./docs/smtp-qq.txt', 'utf8'));
-console.log(message);
 

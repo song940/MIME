@@ -73,9 +73,9 @@ MIME.lookup = function(filename){
 
 var aliaes = {
   from: 'From',
-  to  : 'To'  ,
-  cc  : 'Cc'  ,
-  bcc : 'Bcc' ,
+  to  : 'To',
+  cc  : 'Cc',
+  subject : 'Subject',
 };
 
 Object.keys(aliaes).forEach(function(alias){
@@ -83,8 +83,8 @@ Object.keys(aliaes).forEach(function(alias){
     return this.headers[ aliaes[alias] ];
   });
 
-  MIME.prototype.__defineSetter__(alias, function(from){
-    this.headers[ aliaes[alias] ] = from;
+  MIME.prototype.__defineSetter__(alias, function(value){
+    this.headers[ aliaes[alias] ] = value.toString();
   });
 });
 
@@ -108,11 +108,14 @@ MIME.prototype.header = function(name, value){
  */
 MIME.prototype.write = function(buf){
   this.buffer += buf;
+  this.buffer = this.buffer
+    .replace(/\r\n/g, '\n')
+    .replace(/\n/g, '\r\n');
   var LINE = MIME.CRLF + MIME.CRLF;
   var sp = this.buffer.indexOf(LINE);
   if(sp > -1){
-    var str = this.buffer.substr(0, sp);
-    this.headers = MIME.parseHeaders(str);
+    var header = this.buffer.substr(0, sp);
+    this.headers = MIME.parseHeaders(header);
     this.emit('headers', this.headers);
     this.buffer = this.buffer.substr(sp);
   }
@@ -184,12 +187,15 @@ MIME.parseAddress = function(address){
   }
   host = host.trim();
   user = user.trim();
-  name = name && name.trim();
+  name = (name || '').trim();
   return {
     host,
     user,
     name,
-    address: `${user}@${host}`
+    address: `${user}@${host}`,
+    toString(){
+      return `${name}<${this.address}>`;
+    }
   };
 };
 /**
