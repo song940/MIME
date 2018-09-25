@@ -41,7 +41,7 @@ MIME.kv = function(key, value){
 };
 
 MIME.trim = function(s){
-  return s.trim().replace(/^"|"$/, '');
+  return s.replace(/^"|"$/, '');
 }
 
 MIME.filter = function(str){
@@ -75,7 +75,7 @@ var aliaes = {
   from: 'From',
   to  : 'To'  ,
   cc  : 'Cc'  ,
-  subject: 'Subject'
+  bcc : 'Bcc' ,
 };
 
 Object.keys(aliaes).forEach(function(alias){
@@ -83,8 +83,8 @@ Object.keys(aliaes).forEach(function(alias){
     return this.headers[ aliaes[alias] ];
   });
 
-  MIME.prototype.__defineSetter__(alias, function(value){
-    this.headers[ aliaes[alias] ] = value.toString();
+  MIME.prototype.__defineSetter__(alias, function(from){
+    this.headers[ aliaes[alias] ] = from;
   });
 });
 
@@ -157,7 +157,7 @@ MIME.parse = function(content, contentType){
   if(typeof contentType === 'undefined'){
     return mime.end(content);
   }else{
-    return mime.parseBody(content, contentType);
+    return MIME.parseBody(content, contentType);
   }
 };
 
@@ -203,8 +203,10 @@ MIME.parseHeaders = function(header){
   .split(MIME.CRLF)
   .filter(MIME.filter)
   .map(MIME.parseHeader)
-  .reduce((item, cur) => 
-    Object.assign(item, cur), {});
+  .reduce(function(item, cur){
+    for(var k in cur) item[k] = cur[k];
+    return item;
+  }, {});
 };
 
 /**
@@ -248,16 +250,14 @@ MIME.parseHeaderValue = function(str){
  * @return {[type]}     [description]
  */
 MIME.parseBody = function(content, contentType){
-  var j=-1, h='', body = { _: '' };
-  var status = MIME.PARSE_STATUS.BODY;
-  var lines = (content || '').toString().split(MIME.CRLF);
+  if(typeof content !== 'string')
+    content = content.toString();
   if(typeof contentType === 'string'){
     contentType = MIME.parseHeaderValue(contentType);
   }
-  if(!contentType || contentType._ !== 'multipart/alternative'){
-    body._ = content.trim();
-    return body;
-  }
+  var j=-1, h='', body = { _: '' };
+  var status = MIME.PARSE_STATUS.BODY;
+  var lines = content.split(MIME.CRLF);
   while(lines.length){
     line = lines.shift();
     if(line == '--$--'.replace('$', contentType.boundary)){
@@ -290,8 +290,8 @@ MIME.parseBody = function(content, contentType){
   Object.keys(parts).forEach(n => {
     const part = parts[n];
     const { headers, body } = part;
-    const { _: type } = headers['Content-Type'];
-    const { _: encoding } = headers['Content-Transfer-Encoding'];
+    const { _: type } = headers['Content-Type'] || {};
+    const { _: encoding } = headers['Content-Transfer-Encoding'] || {};
     part.raw = body;
     part.body = Buffer.from(body, encoding);
     switch(type){
