@@ -172,7 +172,7 @@ MIME.parse = function(content, contentType){
  */
 MIME.parseAddress = function(address){
   const r1 = /(.+)@(.+)/;
-  const r2 = /^([^<]+)<(.+)@(.+)>$/;
+  const r2 = /^([^<]+)?<(.+)@(.+)>$/;
   if(typeof address !== 'string') 
     throw new TypeError(`[MIME] address must be a string, but got ${address}`);
   if(!r1.test(address))
@@ -258,6 +258,7 @@ MIME.parseHeaderValue = function(str){
 MIME.parseBody = function(content, contentType){
   if(typeof content !== 'string')
     content = content.toString();
+  if(!contentType) return { _: content.trim() };
   if(typeof contentType === 'string'){
     contentType = MIME.parseHeaderValue(contentType);
   }
@@ -303,7 +304,10 @@ MIME.parseBody = function(content, contentType){
     switch(type){
       case 'text/plain':
       case 'text/html':
-        part.body = part.body.toString();
+        part.body = body;
+        break;
+      case 'application/json':
+        part.body = JSON.parse(body);
         break;
     }
   });
