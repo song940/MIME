@@ -194,6 +194,7 @@ MIME.parseAddress = function(address){
     name,
     address: `${user}@${host}`,
     toString(){
+      name = name ? `"${name}"` : name;
       return `${name}<${this.address}>`;
     }
   };
