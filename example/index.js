@@ -2,10 +2,12 @@ const fs = require('fs');
 const Message = require('..');
 
 const message = new Message();
+
 message.on('end', (headers, body) => {
   console.log(body);
 });
-fs.createReadStream(__dirname + '/../docs/mail.txt').pipe(message);
+
+fs.createReadStream(__dirname + '/../docs/smtp-qq.txt').pipe(message);
 
 // const type = new Message.Header({
 //   name: 'content-type',
