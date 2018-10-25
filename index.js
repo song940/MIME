@@ -114,6 +114,32 @@ MIME.prototype.addHeader = function(header, value, options){
   return this;
 };
 
+MIME.prototype.setHeader = function(header, value, options){
+  if(!(header instanceof Header))
+    header = new Header(header, value, options);
+  const i = this.headers.findIndex(h => {
+    return h.name.toLowerCase() === header.name.toLowerCase();
+  });
+  if(i === -1){
+    this.headers.push(header);
+  }else{
+    this.headers[i] = header;
+  }
+  return this;
+};
+
+'from,to,cc'.split(',').forEach(field => {
+  MIME.prototype.__defineGetter__(field, function(){
+    const { value } = this.getHeader(field);
+    return MIME.parseAddress(value);
+  });
+  MIME.prototype.__defineSetter__(field, function(address){
+    const value = MIME.parseAddress(address);
+    const name = field.charAt(0).toUpperCase() + field.slice(1);
+    return this.setHeader(name, value.toString());
+  });
+});
+
 /**
  * [write description]
  * @param  {[type]} buf [description]

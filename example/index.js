@@ -1,13 +1,18 @@
 const fs = require('fs');
 const Message = require('..');
 
-const message = new Message();
+const message = new Message({ }, 'hello');
 
-message.on('end', (headers, body) => {
-  console.log(body);
-});
+message.from = 'liusong02@meituan.com';
+message.to = 'Liu song <hi@lsong.org>';
 
-fs.createReadStream(__dirname + '/../docs/smtp-qq.txt').pipe(message);
+console.log(message.toString());
+
+// message.on('end', (headers, body) => {
+//   console.log(body);
+// });
+
+// fs.createReadStream(__dirname + '/../docs/smtp-qq.txt').pipe(message);
 
 // const type = new Message.Header({
 //   name: 'content-type',
