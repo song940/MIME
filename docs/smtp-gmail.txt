@@ -1,7 +1,3 @@
-EHLO mail-yw0-f170.google.com
-MAIL FROM:<song940@gmail.com>
-RCPT TO:<test@lsong.org>
-DATA
 Received: by mail-yw0-f170.google.com with SMTP id g127so132830217ywf.2
         for <test@lsong.org>; Sat, 12 Mar 2016 19:42:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
@@ -46,5 +42,3 @@ Content-Type: text/html; charset=UTF-8
 <div dir="ltr">test message</div>
 
 --001a114ca9c82b67ff052de5f419--
-.
-QUIT

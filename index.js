@@ -97,7 +97,7 @@ class Header {
       const kv = p.match(/^(.+?)=(.*)$/);
       if(kv) o[kv[1]] = MIME.trim(kv[2]);
       else {
-        v && [v];
+        v && (v = [v]);
         Array.isArray(v) ? v.push(p) : v = p;
       }
     });
@@ -150,6 +150,7 @@ MIME.prototype.write = function(buf){
   this.content += buf;
   this.content = this.content
     .replace(/\n\t/g, '')
+    .replace(/\n +/g, '')
     .replace(/\r\n/g, '\n')
     .replace(/\n/g, '\r\n');
   if(this.status === MIME.PARSE_STATUS.HEADER){
