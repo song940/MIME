@@ -130,8 +130,8 @@ MIME.prototype.setHeader = function(header, value, options){
 
 'from,to,cc'.split(',').forEach(field => {
   MIME.prototype.__defineGetter__(field, function(){
-    const { value } = this.getHeader(field);
-    return MIME.parseAddress(value);
+    const header = this.getHeader(field);
+    return header && MIME.parseAddress(header.value);
   });
   MIME.prototype.__defineSetter__(field, function(address){
     const value = MIME.parseAddress(address);
